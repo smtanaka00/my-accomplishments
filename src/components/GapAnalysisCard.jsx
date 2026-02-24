@@ -1,10 +1,14 @@
 import React from 'react';
-import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Target, AlertTriangle, Lightbulb, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useGlobalState } from '../context/GlobalStateContext';
 
 const GapAnalysisCard = ({ year }) => {
-    const { achievements } = useGlobalState();
-    const yearAchievements = achievements.filter(ach => ach.date.startsWith(year));
+    const { profile, achievements } = useGlobalState();
+    const targetGoal = profile?.target_goal || "Your Goal";
+
+    // Fallback to empty array if undefined
+    const safeAchievements = achievements || [];
+    const yearAchievements = safeAchievements.filter(ach => ach.date && ach.date.startsWith(year));
 
     // Desired criteria for O-1/EB-2 NIW
     const TARGET_CRITERIA = [

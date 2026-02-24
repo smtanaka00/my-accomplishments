@@ -8,17 +8,22 @@ import { Target, CheckCircle, Award, Plus } from 'lucide-react';
 import { useGlobalState } from '../context/GlobalStateContext';
 
 const Dashboard = () => {
-    const { dashboardMetrics } = useGlobalState();
+    const { dashboardMetrics, profile } = useGlobalState();
     const navigate = useNavigate();
     const [selectedYear, setSelectedYear] = useState('2024');
 
     const currentData = dashboardMetrics[selectedYear] || { impactScore: 0, completionRate: '0%', awards: 0 };
+    const displayName = profile?.full_name || 'New User';
+    const displayTitle = profile?.target_role || 'Welcome to your portfolio';
+
+    // Temporary warning if target goal is set to show it's working
+    const displayGoal = profile?.target_goal ? ` • Target: ${profile.target_goal}` : '';
 
     return (
         <div className="flex-col" style={{ gap: 'var(--space-6)', paddingBottom: 'var(--space-4)' }}>
             <Header
-                name="Sarah Jenkins"
-                title="Senior Scientist in Drug Manufacturing"
+                name={displayName}
+                title={`${displayTitle}${displayGoal}`}
                 year={selectedYear}
                 onYearChange={setSelectedYear}
             />
