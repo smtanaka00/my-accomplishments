@@ -24,19 +24,29 @@ This document serves as the master checklist to track feature implementations an
 - **Status**: Complete
 - **Details**: Document repository UI offering search, filtering by folders vs files, and custom layout styling.
 
+### Phase 6: Core Logic Integration
+- **Status**: Complete
+- **Details**: Refactored mock data into `GlobalStateContext`. Connected the "Log Achievement" form logic to dynamically update the Timeline and Dashboard metrics. Implemented local browser storage (`localStorage`) to maintain user data across sessions.
+
+### Phase 7: Advanced Data & Export
+- **Status**: Complete
+- **Details**: Built a Report Generator using `react-to-print` for one-click PDF exports. Created a Gap Analysis UI to analyze logged tags against target Visa/Promotion requirements and suggest missing evidence types.
+
 ---
 
 ## Future Feature Recommendations (Next Context Window)
 
-### Phase 6: Core Logic Integration
-- [ ] Refactor mock data into a global state management solution (e.g., React Context or Zustand).
-- [ ] Connect the "Log Achievement" form logic to dynamically update the Timeline and Dashboard metrics.
-- [ ] Implement local browser storage (`localStorage`) to maintain user data across sessions.
+### Phase 8: Cloud Infrastructure & Backend
+- **Status**: Complete
+- **Details**: Integrated Supabase for secure user authentication (email/password) and PostgreSQL database storage. Replaced local browser storage with cloud sync for achievements and metrics.
 
-### Phase 7: Advanced Data & Export
-- [ ] **Report Generator**: Create a one-click PDF export feature for the 2024 achievements.
-- [ ] **Gap Analysis UI**: Build a logical component that analyzes logged tags against target Visa/Promotion requirements and suggests missing evidence types.
-- [ ] Connect a real backend (e.g., Firebase, Supabase) for secure user authentication and persistent cloud storage.
+### Phase 9: User Profile & Onboarding
+- [x] **Profile Setup Flow**: Form for new users to enter their Name, Target Role, and Target Visa/Promotion type immediately after signing up.
+- [x] **Dashboard Personalization**: Update the Dashboard header to reflect the user's name and target goals dynamically from the `profiles` table.
+- [ ] **Data Migration Wizard**: (Optional) Allow users who have existing `localStorage` data to push it to the cloud upon their first login.
+
+### Phase 10: Cloud Storage Vault
+- [ ] **Cloud Storage for Vault**: Integrate Supabase Storage to handle actual file uploads from the Evidence Vault and Log Achievement form, replacing the current mock file system.
 
 ### Handoff Protocol
 When an implementation phase ends, the local branch should be committed and the next phase can be queued. Review this file periodically to verify tracking.
