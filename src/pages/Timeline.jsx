@@ -1,46 +1,10 @@
 import React from 'react';
 import TimelineEntry from '../components/TimelineEntry';
+import { useGlobalState } from '../context/GlobalStateContext';
 
 const Timeline = () => {
-    const achievements = [
-        {
-            id: 1,
-            title: 'Reduced production lead time by 15%',
-            date: 'October 14, 2024',
-            category: 'Internal Project',
-            tag: 'Process Optimization',
-            impact: 'Streamlined the bioreactor turnaround process, increasing annual yield capacity for key vaccine components.',
-            evidenceType: 'pdf'
-        },
-        {
-            id: 2,
-            title: 'Excellence in Regulatory Compliance Award',
-            date: 'September 12, 2024',
-            category: 'Award',
-            tag: 'Regulatory Compliance',
-            impact: 'Recognized globally across the company for maintaining a 100% spotless FDA audit record during the Q3 inspection.',
-            evidenceType: 'image'
-        },
-        {
-            id: 3,
-            title: 'Published research on mRNA stability',
-            date: 'June 05, 2024',
-            category: 'Publication',
-            tag: 'Innovation',
-            impact: 'Lead author in the Journal of Pharmaceutical Sciences outlining novel lipid nanoparticle stabilization techniques.',
-            evidenceType: 'link'
-        },
-        {
-            id: 4,
-            title: 'Lead cross-functional scale-up team',
-            date: 'March 22, 2024',
-            category: 'Leadership',
-            tag: 'Drug Manufacturing',
-            impact: 'Successfully transitioned product X from Phase II clinical trials to commercial manufacturing scale within 6 months.',
-            evidenceType: 'pdf'
-        }
-    ];
-
+    const { achievements } = useGlobalState();
+    // Removing local mock data array    
     return (
         <div className="flex-col gap-6" style={{ paddingBottom: 'var(--space-8)' }}>
             <header className="flex-col gap-1">

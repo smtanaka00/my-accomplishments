@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Timeline from './pages/Timeline';
 import EntryForm from './pages/EntryForm';
 import Vault from './pages/Vault';
+import { GlobalStateProvider } from './context/GlobalStateContext';
 import './index.css';
 
 // Navigation Component
@@ -31,17 +32,19 @@ const BottomNavigation = () => (
 
 function App() {
   return (
-    <Router>
-      <div className="main-content">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/timeline" element={<Timeline />} />
-          <Route path="/log" element={<EntryForm />} />
-          <Route path="/vault" element={<Vault />} />
-        </Routes>
-      </div>
-      <BottomNavigation />
-    </Router>
+    <GlobalStateProvider>
+      <Router>
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/timeline" element={<Timeline />} />
+            <Route path="/log" element={<EntryForm />} />
+            <Route path="/vault" element={<Vault />} />
+          </Routes>
+        </div>
+        <BottomNavigation />
+      </Router>
+    </GlobalStateProvider>
   );
 }
 

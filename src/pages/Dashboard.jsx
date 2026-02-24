@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import MetricCard from '../components/MetricCard';
+import ReportGenerator from '../components/ReportGenerator';
+import GapAnalysisCard from '../components/GapAnalysisCard';
 import { Target, CheckCircle, Award, Plus } from 'lucide-react';
+import { useGlobalState } from '../context/GlobalStateContext';
 
 const Dashboard = () => {
+    const { dashboardMetrics } = useGlobalState();
+    const navigate = useNavigate();
     const [selectedYear, setSelectedYear] = useState('2024');
 
-    // Multi-year Mock Data
-    const dashboardData = {
-        '2024': { impactScore: 88, completionRate: '92%', awards: 4 },
-        '2023': { impactScore: 75, completionRate: '85%', awards: 2 },
-        '2022': { impactScore: 60, completionRate: '80%', awards: 1 }
-    };
-
-    const currentData = dashboardData[selectedYear];
+    const currentData = dashboardMetrics[selectedYear] || { impactScore: 0, completionRate: '0%', awards: 0 };
 
     return (
         <div className="flex-col" style={{ gap: 'var(--space-6)', paddingBottom: 'var(--space-4)' }}>
@@ -32,11 +31,16 @@ const Dashboard = () => {
                 <MetricCard title="Certifications/Awards" value={currentData.awards} icon={Award} color="#3b82f6" />
             </div>
 
+            <div style={{ marginTop: 'var(--space-4)' }}>
+                <GapAnalysisCard year={selectedYear} />
+            </div>
+
             <div style={{ marginTop: 'var(--space-2)' }}>
-                <button className="btn-primary" style={{ padding: 'var(--space-4)' }}>
+                <button className="btn-primary" style={{ padding: 'var(--space-4)' }} onClick={() => navigate('/log')}>
                     <Plus size={20} />
                     Log Achievement
                 </button>
+                <ReportGenerator year={selectedYear} />
             </div>
 
             {/* Mini Recent Activity Feed - Preview */}
