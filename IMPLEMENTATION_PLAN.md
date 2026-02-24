@@ -2,34 +2,41 @@
 
 This document serves as the master checklist to track feature implementations and clear handoff points for the **My Achievements** application.
 
-## Pre-Requisites
-- [ ] Create Plans & Setup Tracking
-- [ ] Setup GitHub Repository
+## Completed Phases (MVP)
 
-## Phase 1: Foundation
-- **Start**: Vite + React instantiation
-- **End**: Running 'Hello World' app with routing established and design tokens (CSS) wired.
+### Phase 1: Foundation
 - **Status**: Complete
+- **Details**: Vite + React instantiated, mobile-first design tokens configured, routing (`react-router-dom`) established across 4 main views.
 
-## Phase 2: Career Dashboard
-- **Start**: Component creation for Dashboard (Header, Metrics)
-- **End**: Fully styled responsive dashboard page populated with mock data.
+### Phase 2: Career Dashboard
 - **Status**: Complete
+- **Details**: Mock data dashboard with dynamic header, High-Impact metric cards, and a yearly toggle. 
 
-## Phase 3: Timeline Narrative
-- **Start**: Timeline feed logic and nested display cards.
-- **End**: Scrollable timeline populated with categorized achievements.
+### Phase 3: Timeline Narrative
 - **Status**: Complete
+- **Details**: Vertical chronological feed with custom category tags and impact summaries.
 
-## Phase 4: Achievement Entry Engine
-- **Start**: Form component structure and validation
-- **End**: Submit-ready rich form with Visa/Role tagging mock logic.
+### Phase 4: Achievement Entry Engine
 - **Status**: Complete
+- **Details**: Rich input form featuring Visa/Review alignment tagging and an integrated mock evidence upload component.
 
-## Phase 5: Evidence Vault
-- **Start**: Repository UI (Search, Filter, Folders)
-- **End**: Complete document hub with functional filtering logic against mock data.
+### Phase 5: Evidence Vault
 - **Status**: Complete
+- **Details**: Document repository UI offering search, filtering by folders vs files, and custom layout styling.
+
+---
+
+## Future Feature Recommendations (Next Context Window)
+
+### Phase 6: Core Logic Integration
+- [ ] Refactor mock data into a global state management solution (e.g., React Context or Zustand).
+- [ ] Connect the "Log Achievement" form logic to dynamically update the Timeline and Dashboard metrics.
+- [ ] Implement local browser storage (`localStorage`) to maintain user data across sessions.
+
+### Phase 7: Advanced Data & Export
+- [ ] **Report Generator**: Create a one-click PDF export feature for the 2024 achievements.
+- [ ] **Gap Analysis UI**: Build a logical component that analyzes logged tags against target Visa/Promotion requirements and suggests missing evidence types.
+- [ ] Connect a real backend (e.g., Firebase, Supabase) for secure user authentication and persistent cloud storage.
 
 ### Handoff Protocol
 When an implementation phase ends, the local branch should be committed and the next phase can be queued. Review this file periodically to verify tracking.
