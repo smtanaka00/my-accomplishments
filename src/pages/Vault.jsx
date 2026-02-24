@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
 import { Search, Filter, Folder, Image as ImageIcon, FileText, ArrowRight, UploadCloud } from 'lucide-react';
+import { useGlobalState } from '../context/GlobalStateContext';
 
 const Vault = () => {
+    const { files } = useGlobalState();
     const [activeTab, setActiveTab] = useState('folders'); // 'folders' or 'files'
     const [searchQuery, setSearchQuery] = useState('');
 
     const folders = ['2024', '2023', '2022', 'Certifications', 'Performance Reviews'];
 
-    const files = [
-        { id: 1, name: 'Patent_Award_Q3.pdf', type: 'pdf', date: 'Oct 14, 2024', size: '2.4 MB' },
-        { id: 2, name: 'Compliance_Certificate.jpg', type: 'image', date: 'Sep 12, 2024', size: '1.1 MB' },
-        { id: 3, name: 'Nature_Journal_Publication.pdf', type: 'pdf', date: 'Jun 05, 2024', size: '4.8 MB' },
-        { id: 4, name: 'Manager_Review_2023.pdf', type: 'pdf', date: 'Jan 15, 2023', size: '800 KB' },
-    ];
-
-    const filteredFiles = files.filter(file => file.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    // Removing local files array    const filteredFiles = files.filter(file => file.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
     return (
         <div className="flex-col gap-6" style={{ paddingBottom: 'var(--space-8)' }}>

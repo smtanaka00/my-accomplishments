@@ -1,13 +1,41 @@
 import React, { useState } from 'react';
-import { Upload, ChevronDown, Check } from 'lucide-react';
+import { Upload, ChevronDown, Check, FileType } from 'lucide-react';
+import { useGlobalState } from '../context/GlobalStateContext';
+import { useNavigate } from 'react-router-dom';
 
 const EntryForm = () => {
+    const { addAchievement } = useGlobalState();
+    const navigate = useNavigate();
+
+    const [title, setTitle] = useState('');
+    const [date, setDate] = useState('');
+    const [impact, setImpact] = useState('');
     const [targetVisa, setTargetVisa] = useState('EB-2 NIW');
     const [category, setCategory] = useState('Publication');
+    const [fileName, setFileName] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        if (!title || !date) {
+            alert('Please fill out the title and date.');
+            return;
+        }
+
+        const newAchievement = {
+            title,
+            date,
+            displayDate: new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+            category,
+            tag: targetVisa,
+            impact: impact || 'No impact statement provided.',
+            evidenceType: fileName ? (fileName.endsWith('.pdf') ? 'pdf' : 'image') : 'link',
+            fileName
+        };
+
+        addAchievement(newAchievement);
         alert('Achievement logged securely!');
+        navigate('/timeline'); // Navigate to timeline to see the result
     };
 
     return (
@@ -28,6 +56,8 @@ const EntryForm = () => {
                         <input
                             type="text"
                             placeholder="e.g. Published in Nature Journal..."
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
                             style={{
                                 width: '100%', padding: '10px', backgroundColor: 'var(--color-base)',
                                 border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-md)',
@@ -41,6 +71,8 @@ const EntryForm = () => {
                             <label className="text-sm font-medium">Date</label>
                             <input
                                 type="date"
+                                value={date}
+                                onChange={(e) => setDate(e.target.value)}
                                 style={{
                                     width: '100%', padding: '10px', backgroundColor: 'var(--color-base)',
                                     border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-md)',
@@ -113,6 +145,8 @@ const EntryForm = () => {
                     <textarea
                         rows="4"
                         placeholder="What was the result of this? e.g. Reduced lead time by 15%, increasing capacity..."
+                        value={impact}
+                        onChange={(e) => setImpact(e.target.value)}
                         style={{
                             width: '100%', padding: '10px', backgroundColor: 'var(--color-base)',
                             border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-md)',
@@ -122,15 +156,29 @@ const EntryForm = () => {
 
                     <div
                         className="flex-col items-center justify-center gap-2"
+                        onClick={() => {
+                            const name = prompt("Enter a mock file name (e.g., 'award.pdf', 'photo.jpg'):");
+                            if (name) setFileName(name);
+                        }}
                         style={{
                             padding: 'var(--space-6)', border: '2px dashed var(--color-border)',
-                            borderRadius: 'var(--border-radius-md)', backgroundColor: 'var(--color-base)',
+                            borderRadius: 'var(--border-radius-md)', backgroundColor: fileName ? 'var(--color-surface)' : 'var(--color-base)',
                             cursor: 'pointer'
                         }}
                     >
-                        <Upload size={24} color="var(--color-text-muted)" />
-                        <span className="text-sm font-medium text-muted">Tap to Upload Evidence</span>
-                        <span className="text-xs text-muted">Supports PDF, JPG, PNG</span>
+                        {fileName ? (
+                            <>
+                                <FileType size={24} color="var(--color-primary)" />
+                                <span className="text-sm font-medium" style={{ color: 'var(--color-primary)' }}>Attached: {fileName}</span>
+                                <span className="text-xs text-muted">Tap to change</span>
+                            </>
+                        ) : (
+                            <>
+                                <Upload size={24} color="var(--color-text-muted)" />
+                                <span className="text-sm font-medium text-muted">Tap to Upload Evidence</span>
+                                <span className="text-xs text-muted">Supports PDF, JPG, PNG</span>
+                            </>
+                        )}
                     </div>
                 </div>
 
