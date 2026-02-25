@@ -29,9 +29,10 @@ const Header = ({ name, title, year, onYearChange }) => {
                         fontSize: 'var(--font-size-sm)', cursor: 'pointer'
                     }}
                 >
-                    <option value="2024">2024</option>
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
+                    {Array.from({ length: 6 }, (_, i) => {
+                        const y = new Date().getFullYear() - i;
+                        return <option key={y} value={String(y)}>{y}</option>;
+                    })}
                 </select>
                 <button
                     onClick={() => supabase.auth.signOut()}

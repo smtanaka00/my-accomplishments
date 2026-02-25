@@ -7,11 +7,12 @@ import GapAnalysisCard from '../components/GapAnalysisCard';
 import AnalyticsChart from '../components/AnalyticsChart';
 import { Target, CheckCircle, Award, Plus, Share2, Check } from 'lucide-react';
 import { useGlobalState } from '../context/GlobalStateContext';
+import StreakBanner from '../components/StreakBanner';
 
 const Dashboard = () => {
-    const { dashboardMetrics, profile, session } = useGlobalState();
+    const { dashboardMetrics, profile, session, achievements } = useGlobalState();
     const navigate = useNavigate();
-    const [selectedYear, setSelectedYear] = useState('2024');
+    const [selectedYear, setSelectedYear] = useState(String(new Date().getFullYear()));
     const [copiedLink, setCopiedLink] = useState(false);
 
     const handleSharePortfolio = () => {
@@ -30,6 +31,7 @@ const Dashboard = () => {
 
     return (
         <div className="flex-col" style={{ gap: 'var(--space-6)', paddingBottom: 'var(--space-4)' }}>
+            <StreakBanner />
             <Header
                 name={displayName}
                 title={`${displayTitle}${displayGoal}`}
@@ -74,23 +76,26 @@ const Dashboard = () => {
                 <ReportGenerator year={selectedYear} />
             </div>
 
-            {/* Mini Recent Activity Feed - Preview */}
+            {/* Recent Highlights — live from achievements */}
             <div className="flex-col gap-4" style={{ marginTop: 'var(--space-4)' }}>
                 <h2 className="text-lg font-semibold">Recent Highlights</h2>
-                <div className="card flex-col gap-2">
-                    <div className="flex justify-between items-center text-sm">
-                        <span style={{ color: 'var(--color-primary)', fontWeight: '600' }}>Process Optimization</span>
-                        <span className="text-muted">Oct 24</span>
+                {achievements
+                    .filter(a => new Date(a.date).getFullYear() === parseInt(selectedYear))
+                    .slice(0, 3)
+                    .map(a => (
+                        <div key={a.id} className="card flex-col gap-2">
+                            <div className="flex justify-between items-center text-sm">
+                                <span style={{ color: 'var(--color-primary)', fontWeight: '600' }}>{a.category}</span>
+                                <span className="text-muted">{a.display_date || a.date}</span>
+                            </div>
+                            <p className="text-sm">{a.title}</p>
+                        </div>
+                    ))}
+                {achievements.filter(a => new Date(a.date).getFullYear() === parseInt(selectedYear)).length === 0 && (
+                    <div className="card text-center text-muted" style={{ padding: 'var(--space-4)', fontSize: 'var(--font-size-sm)' }}>
+                        No achievements logged for {selectedYear} yet.
                     </div>
-                    <p className="text-sm">Reduced production lead time by 15% via process optimization.</p>
-                </div>
-                <div className="card flex-col gap-2">
-                    <div className="flex justify-between items-center text-sm">
-                        <span style={{ color: 'var(--color-accent)', fontWeight: '600' }}>Award</span>
-                        <span className="text-muted">Sep 12</span>
-                    </div>
-                    <p className="text-sm">Excellence in Regulatory Compliance Award 2024.</p>
-                </div>
+                )}
             </div>
         </div>
     );

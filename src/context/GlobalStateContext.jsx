@@ -260,7 +260,64 @@ export const GlobalStateProvider = ({ children }) => {
     const addFile = (file) => {
         const newFile = { ...file, id: Date.now() };
         setFiles(prev => [newFile, ...prev]);
-    }
+    };
+
+    const deleteFile = async (file) => {
+        if (!session?.user || !file.path) return;
+        try {
+            const { error } = await supabase.storage
+                .from('evidence_vault')
+                .remove([file.path]);
+            if (error) throw error;
+            setFiles(prev => prev.filter(f => f.id !== file.id));
+        } catch (error) {
+            console.error('Error deleting file:', error.message);
+        }
+    };
+
+    const deleteAchievement = async (id) => {
+        if (!session?.user) return;
+        try {
+            const { error } = await supabase.from('achievements').delete().eq('id', id);
+            if (error) throw error;
+            const deleted = achievements.find(a => a.id === id);
+            setAchievements(prev => prev.filter(a => a.id !== id));
+            // Update metrics
+            if (deleted) {
+                const year = new Date(deleted.date).getFullYear().toString();
+                setDashboardMetrics(prev => {
+                    const yd = prev[year];
+                    if (!yd) return prev;
+                    let score = yd.impactScore - 5;
+                    let awards = yd.awards;
+                    if (deleted.category === 'Award') { awards--; score -= 10; }
+                    return { ...prev, [year]: { ...yd, impactScore: Math.max(0, score), awards: Math.max(0, awards) } };
+                });
+            }
+        } catch (error) {
+            console.error('Error deleting achievement:', error.message);
+        }
+    };
+
+    const updateAchievement = async (id, updates) => {
+        if (!session?.user) return;
+        try {
+            const dbUpdates = {
+                title: updates.title,
+                date: updates.date,
+                display_date: updates.displayDate,
+                category: updates.category,
+                tag: updates.tag,
+                impact: updates.impact,
+                is_public: updates.isPublic,
+            };
+            const { error } = await supabase.from('achievements').update(dbUpdates).eq('id', id);
+            if (error) throw error;
+            setAchievements(prev => prev.map(a => a.id === id ? { ...a, ...dbUpdates } : a));
+        } catch (error) {
+            console.error('Error updating achievement:', error.message);
+        }
+    };
 
     const addGoal = async (goal) => {
         if (!session?.user) return;
@@ -317,6 +374,9 @@ export const GlobalStateProvider = ({ children }) => {
             goals,
             addAchievement,
             addFile,
+            deleteFile,
+            deleteAchievement,
+            updateAchievement,
             addGoal,
             updateGoal,
             deleteGoal,

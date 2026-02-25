@@ -17,7 +17,10 @@ const GapAnalysisCard = ({ year }) => {
         'High Salary',
         'Display of Work',
         'Publication',
-        'Award'
+        'Award',
+        'Certification / License',
+        'Speaking / Conference',
+        'Mentorship / Coaching'
     ];
 
     // Find what criteria the user has hit
