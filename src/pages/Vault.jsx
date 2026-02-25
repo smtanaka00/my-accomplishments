@@ -26,13 +26,18 @@ const Vault = () => {
     const filteredFiles = files.filter(file => {
         const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
         if (!activeFolder) return matchesSearch;
+
+        // Match if the file's folder property matches the active folder
+        if (file.folder === activeFolder) return matchesSearch;
+
+        // Fallback: match if the file path segments include the folder name
+        if (file.path && file.path.split('/').includes(activeFolder)) return matchesSearch;
+
+        // Legacy/Safety for year folders by date string
         const isYearFolder = /^\d{4}$/.test(activeFolder);
         if (isYearFolder) return matchesSearch && file.date.includes(activeFolder);
-        // Named folder: match by folder tag or by whether the file path includes the folder name
-        return matchesSearch && (
-            file.folder === activeFolder ||
-            (file.path && file.path.toLowerCase().includes(activeFolder.toLowerCase()))
-        );
+
+        return false;
     });
 
     const handleFolderClick = (folder) => {
@@ -66,10 +71,8 @@ const Vault = () => {
         if (!file || !session?.user) return;
         setUploading(true);
 
-        // If a named folder is active, prefix the path with the folder name
-        const folderPrefix = activeFolder && !/^\d{4}$/.test(activeFolder)
-            ? `${activeFolder}/`
-            : '';
+        // Prefix the path with the active folder name if one is selected
+        const folderPrefix = activeFolder ? `${activeFolder}/` : '';
         const filePath = `${session.user.id}/${folderPrefix}${file.name}`;
 
         const { error } = await supabase.storage

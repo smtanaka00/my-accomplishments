@@ -136,7 +136,10 @@ export const GlobalStateProvider = ({ children }) => {
 
                 // --- FETCH FILES ---
                 const NAMED_FOLDERS = ['Certifications', 'Performance Reviews', 'Awards', 'Publications'];
-                const folderPaths = ['', ...NAMED_FOLDERS.map(f => `${f}/`)];
+                const currentYear = new Date().getFullYear();
+                const yearFolders = Array.from({ length: 6 }, (_, i) => String(currentYear - i));
+                const allFolders = [...yearFolders, ...NAMED_FOLDERS];
+                const folderPaths = ['', ...allFolders.map(f => `${f}/`)];
                 let allFiles = [];
 
                 for (const path of folderPaths) {
