@@ -53,6 +53,45 @@ export const GlobalStateProvider = ({ children }) => {
                 if (profileError) throw profileError;
                 setProfile(profileData);
 
+                // --- DATA MIGRATION ---
+                const localData = localStorage.getItem('achievements');
+                if (localData) {
+                    try {
+                        const parsedData = JSON.parse(localData);
+                        if (Array.isArray(parsedData) && parsedData.length > 0) {
+                            console.log("Migrating local achievements to cloud...");
+                            const recordsToMigrate = parsedData.map(ach => ({
+                                user_id: session.user.id,
+                                title: ach.title,
+                                date: ach.date,
+                                display_date: ach.displayDate || ach.display_date,
+                                category: ach.category,
+                                tag: ach.tag,
+                                impact: ach.impact || 'No impact statement provided.',
+                                evidence_type: ach.evidenceType || ach.evidence_type || 'pdf',
+                                file_name: ach.fileName || ach.file_name || null
+                            }));
+
+                            const { error: migrationError } = await supabase
+                                .from('achievements')
+                                .insert(recordsToMigrate);
+
+                            if (!migrationError) {
+                                localStorage.removeItem('achievements');
+                                console.log("Migration successful!");
+                            } else {
+                                console.error("Migration failed:", migrationError);
+                            }
+                        } else {
+                            localStorage.removeItem('achievements');
+                        }
+                    } catch (e) {
+                        console.error("Error parsing local data, clearing it.", e);
+                        localStorage.removeItem('achievements');
+                    }
+                }
+                // --- END DATA MIGRATION ---
+
                 // Fetch achievements
                 const { data: achievementsData, error: acError } = await supabase
                     .from('achievements')
@@ -84,6 +123,35 @@ export const GlobalStateProvider = ({ children }) => {
                     });
                     setDashboardMetrics(newMetrics);
                 }
+
+                // --- FETCH FILES ---
+                const { data: storageFiles, error: storageError } = await supabase
+                    .storage
+                    .from('evidence_vault')
+                    .list(session.user.id, {
+                        limit: 100,
+                        offset: 0,
+                        sortBy: { column: 'created_at', order: 'desc' }
+                    });
+
+                if (storageError) {
+                    console.error("Error fetching files:", storageError);
+                } else if (storageFiles) {
+                    const mappedFiles = storageFiles.map(f => {
+                        const ext = f.name.split('.').pop();
+                        return {
+                            id: f.id,
+                            name: f.name,
+                            type: ['pdf'].includes(ext?.toLowerCase()) ? 'pdf' : 'image',
+                            date: new Date(f.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                            size: f.metadata ? (f.metadata.size / 1024 / 1024).toFixed(2) + ' MB' : '0 MB',
+                            path: `${session.user.id}/${f.name}`
+                        };
+                    });
+                    setFiles(mappedFiles.filter(f => f.name !== '.emptyFolderPlaceholder'));
+                }
+                // --- END FETCH FILES ---
+
             } catch (error) {
                 console.error("Error loading user data:", error.message);
             }
@@ -102,6 +170,32 @@ export const GlobalStateProvider = ({ children }) => {
         if (!session?.user) return;
 
         try {
+            let uploadedFileName = achievement.fileName || null;
+
+            if (achievement.fileData) {
+                const fileExt = achievement.fileData.name.split('.').pop();
+                const fileName = achievement.fileData.name;
+                const filePath = `${session.user.id}/${fileName}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('evidence_vault')
+                    .upload(filePath, achievement.fileData, { upsert: true });
+
+                if (uploadError) {
+                    console.error("Error uploading file:", uploadError);
+                } else {
+                    uploadedFileName = fileName;
+                    // Optimistically add to file state
+                    addFile({
+                        name: fileName,
+                        type: ['pdf'].includes(fileExt?.toLowerCase()) ? 'pdf' : 'image',
+                        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                        size: (achievement.fileData.size / 1024 / 1024).toFixed(2) + ' MB',
+                        path: filePath
+                    });
+                }
+            }
+
             const { data, error } = await supabase
                 .from('achievements')
                 .insert([
@@ -114,7 +208,7 @@ export const GlobalStateProvider = ({ children }) => {
                         tag: achievement.tag,
                         impact: achievement.impact,
                         evidence_type: achievement.evidenceType || 'pdf',
-                        file_name: achievement.fileName || null
+                        file_name: uploadedFileName
                     }
                 ])
                 .select();
@@ -145,16 +239,6 @@ export const GlobalStateProvider = ({ children }) => {
                             awards: newAwards
                         }
                     };
-                });
-            }
-
-            // Mock adding to vault (ignoring cloud storage for now)
-            if (achievement.fileName) {
-                addFile({
-                    name: achievement.fileName,
-                    type: achievement.evidenceType || 'pdf',
-                    date: achievement.displayDate,
-                    size: '1.2 MB'
                 });
             }
         } catch (error) {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Search, Filter, Folder, Image as ImageIcon, FileText, ArrowRight, UploadCloud } from 'lucide-react';
+import { Search, Filter, Folder, Image as ImageIcon, FileText, ArrowRight, UploadCloud, ExternalLink } from 'lucide-react';
 import { useGlobalState } from '../context/GlobalStateContext';
+import { supabase } from '../supabase';
 
 const Vault = () => {
     const { files } = useGlobalState();
@@ -9,7 +10,15 @@ const Vault = () => {
 
     const folders = ['2024', '2023', '2022', 'Certifications', 'Performance Reviews'];
 
-    // Removing local files array    const filteredFiles = files.filter(file => file.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    const filteredFiles = files.filter(file => file.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const handleFileClick = async (file) => {
+        if (!file.path) return;
+        const { data } = supabase.storage.from('evidence_vault').getPublicUrl(file.path);
+        if (data?.publicUrl) {
+            window.open(data.publicUrl, '_blank');
+        }
+    };
 
     return (
         <div className="flex-col gap-6" style={{ paddingBottom: 'var(--space-8)' }}>
@@ -77,7 +86,12 @@ const Vault = () => {
             ) : (
                 <div className="flex-col gap-3">
                     {filteredFiles.map(file => (
-                        <div key={file.id} className="card flex justify-between items-center" style={{ padding: 'var(--space-3)' }}>
+                        <div
+                            key={file.id}
+                            className="card flex justify-between items-center"
+                            style={{ padding: 'var(--space-3)', cursor: 'pointer' }}
+                            onClick={() => handleFileClick(file)}
+                        >
                             <div className="flex gap-3 items-center">
                                 <div style={{ padding: '8px', backgroundColor: 'var(--color-surface-hover)', borderRadius: 'var(--border-radius-md)' }}>
                                     {file.type === 'pdf' ? <FileText size={20} color="var(--color-text-muted)" /> : <ImageIcon size={20} color="var(--color-text-muted)" />}
@@ -91,6 +105,7 @@ const Vault = () => {
                                     </div>
                                 </div>
                             </div>
+                            <ExternalLink size={16} color="var(--color-text-muted)" />
                         </div>
                     ))}
                     {filteredFiles.length === 0 && (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Upload, ChevronDown, Check, FileType } from 'lucide-react';
 import { useGlobalState } from '../context/GlobalStateContext';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,20 @@ const EntryForm = () => {
     const [targetVisa, setTargetVisa] = useState('EB-2 NIW');
     const [category, setCategory] = useState('Publication');
     const [fileName, setFileName] = useState('');
+    const [fileData, setFileData] = useState(null);
+    const fileInputRef = useRef(null);
+
+    const handleFileClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFileName(file.name);
+            setFileData(file);
+        }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -30,7 +44,8 @@ const EntryForm = () => {
             tag: targetVisa,
             impact: impact || 'No impact statement provided.',
             evidenceType: fileName ? (fileName.endsWith('.pdf') ? 'pdf' : 'image') : 'link',
-            fileName
+            fileName,
+            fileData
         };
 
         addAchievement(newAchievement);
@@ -156,16 +171,20 @@ const EntryForm = () => {
 
                     <div
                         className="flex-col items-center justify-center gap-2"
-                        onClick={() => {
-                            const name = prompt("Enter a mock file name (e.g., 'award.pdf', 'photo.jpg'):");
-                            if (name) setFileName(name);
-                        }}
+                        onClick={handleFileClick}
                         style={{
                             padding: 'var(--space-6)', border: '2px dashed var(--color-border)',
                             borderRadius: 'var(--border-radius-md)', backgroundColor: fileName ? 'var(--color-surface)' : 'var(--color-base)',
                             cursor: 'pointer'
                         }}
                     >
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            style={{ display: 'none' }}
+                            accept=".pdf,image/png,image/jpeg,image/jpg"
+                        />
                         {fileName ? (
                             <>
                                 <FileType size={24} color="var(--color-primary)" />
