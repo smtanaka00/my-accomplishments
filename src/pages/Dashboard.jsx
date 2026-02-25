@@ -4,13 +4,22 @@ import Header from '../components/Header';
 import MetricCard from '../components/MetricCard';
 import ReportGenerator from '../components/ReportGenerator';
 import GapAnalysisCard from '../components/GapAnalysisCard';
-import { Target, CheckCircle, Award, Plus } from 'lucide-react';
+import AnalyticsChart from '../components/AnalyticsChart';
+import { Target, CheckCircle, Award, Plus, Share2, Check } from 'lucide-react';
 import { useGlobalState } from '../context/GlobalStateContext';
 
 const Dashboard = () => {
-    const { dashboardMetrics, profile } = useGlobalState();
+    const { dashboardMetrics, profile, session } = useGlobalState();
     const navigate = useNavigate();
     const [selectedYear, setSelectedYear] = useState('2024');
+    const [copiedLink, setCopiedLink] = useState(false);
+
+    const handleSharePortfolio = () => {
+        const url = `${window.location.origin}/p/${session?.user?.id}`;
+        navigator.clipboard.writeText(url);
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2500);
+    };
 
     const currentData = dashboardMetrics[selectedYear] || { impactScore: 0, completionRate: '0%', awards: 0 };
     const displayName = profile?.full_name || 'New User';
@@ -40,10 +49,27 @@ const Dashboard = () => {
                 <GapAnalysisCard year={selectedYear} />
             </div>
 
+            <div style={{ marginTop: 'var(--space-4)' }}>
+                <AnalyticsChart year={selectedYear} />
+            </div>
+
             <div style={{ marginTop: 'var(--space-2)' }}>
                 <button className="btn-primary" style={{ padding: 'var(--space-4)' }} onClick={() => navigate('/log')}>
                     <Plus size={20} />
                     Log Achievement
+                </button>
+                <button
+                    onClick={handleSharePortfolio}
+                    style={{
+                        width: '100%', marginTop: 'var(--space-3)', padding: 'var(--space-3)',
+                        backgroundColor: 'transparent', border: '1px solid var(--color-border)',
+                        borderRadius: 'var(--border-radius-md)', color: copiedLink ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                        cursor: 'pointer', fontSize: '14px', fontWeight: '500', transition: 'color 0.2s'
+                    }}
+                >
+                    {copiedLink ? <Check size={16} /> : <Share2 size={16} />}
+                    {copiedLink ? 'Portfolio Link Copied!' : 'Share My Portfolio'}
                 </button>
                 <ReportGenerator year={selectedYear} />
             </div>

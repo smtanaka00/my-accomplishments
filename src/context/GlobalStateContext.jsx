@@ -10,6 +10,7 @@ export const GlobalStateProvider = ({ children }) => {
     const [files, setFiles] = useState([]);
     const [dashboardMetrics, setDashboardMetrics] = useState({});
     const [profile, setProfile] = useState(null);
+    const [goals, setGoals] = useState([]);
 
     // Auth State
     const [session, setSession] = useState(null);
@@ -92,13 +93,22 @@ export const GlobalStateProvider = ({ children }) => {
                 }
                 // --- END DATA MIGRATION ---
 
-                // Fetch achievements
                 const { data: achievementsData, error: acError } = await supabase
                     .from('achievements')
                     .select('*')
                     .order('date', { ascending: false });
 
                 if (acError) throw acError;
+
+                // Fetch goals
+                const { data: goalsData, error: goalsError } = await supabase
+                    .from('goals')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (!goalsError && goalsData) {
+                    setGoals(goalsData);
+                }
 
                 if (achievementsData) {
                     setAchievements(achievementsData);
@@ -208,7 +218,8 @@ export const GlobalStateProvider = ({ children }) => {
                         tag: achievement.tag,
                         impact: achievement.impact,
                         evidence_type: achievement.evidenceType || 'pdf',
-                        file_name: uploadedFileName
+                        file_name: uploadedFileName,
+                        is_public: achievement.isPublic || false
                     }
                 ])
                 .select();
@@ -251,6 +262,50 @@ export const GlobalStateProvider = ({ children }) => {
         setFiles(prev => [newFile, ...prev]);
     }
 
+    const addGoal = async (goal) => {
+        if (!session?.user) return;
+        try {
+            const { data, error } = await supabase
+                .from('goals')
+                .insert([{ ...goal, user_id: session.user.id }])
+                .select();
+            if (error) throw error;
+            if (data && data.length > 0) {
+                setGoals(prev => [data[0], ...prev]);
+            }
+        } catch (error) {
+            console.error("Error inserting goal:", error.message);
+        }
+    };
+
+    const updateGoal = async (id, updates) => {
+        if (!session?.user) return;
+        try {
+            const { error } = await supabase
+                .from('goals')
+                .update(updates)
+                .eq('id', id);
+            if (error) throw error;
+            setGoals(prev => prev.map(g => g.id === id ? { ...g, ...updates } : g));
+        } catch (error) {
+            console.error("Error updating goal:", error.message);
+        }
+    };
+
+    const deleteGoal = async (id) => {
+        if (!session?.user) return;
+        try {
+            const { error } = await supabase
+                .from('goals')
+                .delete()
+                .eq('id', id);
+            if (error) throw error;
+            setGoals(prev => prev.filter(g => g.id !== id));
+        } catch (error) {
+            console.error("Error deleting goal:", error.message);
+        }
+    };
+
     return (
         <GlobalStateContext.Provider value={{
             session,
@@ -259,8 +314,12 @@ export const GlobalStateProvider = ({ children }) => {
             achievements,
             files,
             dashboardMetrics,
+            goals,
             addAchievement,
             addFile,
+            addGoal,
+            updateGoal,
+            deleteGoal,
             refreshProfile
         }}>
             {children}

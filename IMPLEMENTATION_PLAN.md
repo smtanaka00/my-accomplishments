@@ -58,3 +58,23 @@ This document serves as the master checklist to track feature implementations an
 
 ### Handoff Protocol
 When an implementation phase ends, the local branch should be committed and the next phase can be queued. Review this file periodically to verify tracking. The application is now live on Vercel and ready for production use or handoff to users.
+
+---
+
+## Future Feature Recommendations (Next Context Window)
+
+### Phase 12: Analytics & Progress Visualization
+- **Status**: Complete
+- **Details**: Installed `recharts` and built `AnalyticsChart` component that displays achievement distribution by category with responsive bar charts. Integrated into Dashboard below the Gap Analysis card.
+
+### Phase 13: Goal Tracking & Career Milestones
+- **Status**: Complete
+- **Details**: Created `supabase_goals.sql` migration for the `goals` table with RLS. Built `Goals.jsx` page with add, complete (toggle), and delete. Added `/goals` route and a **Goals** tab to the bottom navigation. Updated `GlobalStateContext` with `goals` state and `addGoal`, `updateGoal`, `deleteGoal` functions.
+
+### Phase 14: Public Portfolio Generation
+- **Status**: Complete
+- **Details**: Added `is_public` boolean column to achievements (`supabase_public_portfolio.sql`). Added a **Public Visibility** toggle switch to `EntryForm`. Built `PublicPortfolio.jsx` — a read-only, no-auth page accessible at `/p/:userId`. Added a **Share My Portfolio** button to the Dashboard that copies the user's public portfolio URL to clipboard. Sign-out button moved from nav bar to the `Header` component.
+
+### Vault Quick Upload (Fix)
+- **Status**: Complete
+- **Details**: Implemented the Vault FAB (floating action button) to trigger a file picker, upload the selected file to Supabase Storage, and show an "Uploaded!" success toast with an animated checkmark icon.
