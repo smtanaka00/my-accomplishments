@@ -135,31 +135,42 @@ export const GlobalStateProvider = ({ children }) => {
                 }
 
                 // --- FETCH FILES ---
-                const { data: storageFiles, error: storageError } = await supabase
-                    .storage
-                    .from('evidence_vault')
-                    .list(session.user.id, {
-                        limit: 100,
-                        offset: 0,
-                        sortBy: { column: 'created_at', order: 'desc' }
-                    });
+                const NAMED_FOLDERS = ['Certifications', 'Performance Reviews', 'Awards', 'Publications'];
+                const folderPaths = ['', ...NAMED_FOLDERS.map(f => `${f}/`)];
+                let allFiles = [];
 
-                if (storageError) {
-                    console.error("Error fetching files:", storageError);
-                } else if (storageFiles) {
-                    const mappedFiles = storageFiles.map(f => {
-                        const ext = f.name.split('.').pop();
-                        return {
-                            id: f.id,
-                            name: f.name,
-                            type: ['pdf'].includes(ext?.toLowerCase()) ? 'pdf' : 'image',
-                            date: new Date(f.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                            size: f.metadata ? (f.metadata.size / 1024 / 1024).toFixed(2) + ' MB' : '0 MB',
-                            path: `${session.user.id}/${f.name}`
-                        };
-                    });
-                    setFiles(mappedFiles.filter(f => f.name !== '.emptyFolderPlaceholder'));
+                for (const path of folderPaths) {
+                    const { data: storageFiles, error: storageError } = await supabase
+                        .storage
+                        .from('evidence_vault')
+                        .list(`${session.user.id}/${path}`, {
+                            limit: 100,
+                            offset: 0,
+                            sortBy: { column: 'created_at', order: 'desc' }
+                        });
+
+                    if (storageError) {
+                        console.error(`Error fetching files in ${path}:`, storageError);
+                    } else if (storageFiles) {
+                        const folderName = path.replace('/', '');
+                        const mappedFiles = storageFiles
+                            .filter(f => f.name !== '.emptyFolderPlaceholder')
+                            .map(f => {
+                                const ext = f.name.split('.').pop();
+                                return {
+                                    id: f.id || `${path}${f.name}`,
+                                    name: f.name,
+                                    type: ['pdf'].includes(ext?.toLowerCase()) ? 'pdf' : 'image',
+                                    date: new Date(f.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                                    size: f.metadata ? (f.metadata.size / 1024 / 1024).toFixed(2) + ' MB' : '0 MB',
+                                    path: `${session.user.id}/${path}${f.name}`,
+                                    folder: folderName || null
+                                };
+                            });
+                        allFiles = [...allFiles, ...mappedFiles];
+                    }
                 }
+                setFiles(allFiles);
                 // --- END FETCH FILES ---
 
             } catch (error) {

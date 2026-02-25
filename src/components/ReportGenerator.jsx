@@ -36,7 +36,7 @@ class PrintableReport extends React.Component {
                             <div key={ach.id} style={{ border: '1px solid #eee', padding: '15px', borderRadius: '8px', pageBreakInside: 'avoid' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
                                     <h4 style={{ margin: 0, fontSize: '16px' }}>{ach.title}</h4>
-                                    <span style={{ color: '#666', fontSize: '14px' }}>{ach.displayDate}</span>
+                                    <span style={{ color: '#666', fontSize: '14px' }}>{ach.display_date || ach.displayDate || ach.date}</span>
                                 </div>
                                 <div style={{ fontSize: '14px', marginBottom: '10px' }}>
                                     <span style={{ fontWeight: 'bold', marginRight: '10px' }}>Category: {ach.category}</span>
@@ -62,7 +62,11 @@ const ReportGenerator = ({ year }) => {
         documentTitle: `Achievements_Report_${year}`
     });
 
-    const yearAchievements = achievements.filter(ach => ach.date.startsWith(year));
+    const yearAchievements = achievements.filter(ach => {
+        if (!ach.date) return false;
+        const achYear = new Date(ach.date).getFullYear().toString();
+        return achYear === year.toString();
+    });
     const metrics = dashboardMetrics[year] || { impactScore: 0, completionRate: '0%', awards: 0 };
 
     return (
