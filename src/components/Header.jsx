@@ -1,4 +1,6 @@
 import React from 'react';
+import { LogOut } from 'lucide-react';
+import { supabase } from '../supabase';
 
 const Header = ({ name, title, year, onYearChange }) => {
     return (
@@ -16,7 +18,7 @@ const Header = ({ name, title, year, onYearChange }) => {
                     <p className="text-sm" style={{ color: 'var(--color-primary)', marginTop: '2px' }}>{title}</p>
                 </div>
             </div>
-            <div>
+            <div className="flex gap-2 items-center">
                 <select
                     value={year}
                     onChange={(e) => onYearChange(e.target.value)}
@@ -31,6 +33,13 @@ const Header = ({ name, title, year, onYearChange }) => {
                     <option value="2023">2023</option>
                     <option value="2022">2022</option>
                 </select>
+                <button
+                    onClick={() => supabase.auth.signOut()}
+                    title="Sign Out"
+                    style={{ padding: '6px', cursor: 'pointer', color: 'var(--color-text-muted)', display: 'flex' }}
+                >
+                    <LogOut size={18} />
+                </button>
             </div>
         </header>
     );

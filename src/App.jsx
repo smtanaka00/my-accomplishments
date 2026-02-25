@@ -1,11 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
-import { Home, Clock, PlusCircle, FolderHeart, LogOut } from 'lucide-react';
+import { Home, Clock, PlusCircle, FolderHeart, Target, LogOut } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Timeline from './pages/Timeline';
 import EntryForm from './pages/EntryForm';
 import Vault from './pages/Vault';
 import Auth from './pages/Auth';
+import Goals from './pages/Goals';
+import PublicPortfolio from './pages/PublicPortfolio';
 import ProfileSetup from './components/ProfileSetup';
 import { GlobalStateProvider, useGlobalState } from './context/GlobalStateContext';
 import { supabase } from './supabase';
@@ -15,29 +17,25 @@ import './index.css';
 const BottomNavigation = () => (
   <nav className="bottom-nav">
     <NavLink to="/" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} end>
-      <Home size={24} />
-      <span>Dashboard</span>
+      <Home size={22} />
+      <span>Home</span>
     </NavLink>
     <NavLink to="/timeline" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-      <Clock size={24} />
+      <Clock size={22} />
       <span>Timeline</span>
     </NavLink>
     <NavLink to="/log" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-      <PlusCircle size={24} />
+      <PlusCircle size={22} />
       <span>Log</span>
     </NavLink>
+    <NavLink to="/goals" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+      <Target size={22} />
+      <span>Goals</span>
+    </NavLink>
     <NavLink to="/vault" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-      <FolderHeart size={24} />
+      <FolderHeart size={22} />
       <span>Vault</span>
     </NavLink>
-    <button
-      onClick={() => supabase.auth.signOut()}
-      className="nav-item"
-      title="Sign Out"
-    >
-      <LogOut size={24} />
-      <span>Logout</span>
-    </button>
   </nav>
 );
 
@@ -67,6 +65,8 @@ const AppContent = () => {
           <Route path="/timeline" element={<Timeline />} />
           <Route path="/log" element={<EntryForm />} />
           <Route path="/vault" element={<Vault />} />
+          <Route path="/goals" element={<Goals />} />
+          <Route path="/p/:userId" element={<PublicPortfolio />} />
         </Routes>
       </div>
       <BottomNavigation />

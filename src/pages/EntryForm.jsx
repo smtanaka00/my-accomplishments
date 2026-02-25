@@ -14,6 +14,7 @@ const EntryForm = () => {
     const [category, setCategory] = useState('Publication');
     const [fileName, setFileName] = useState('');
     const [fileData, setFileData] = useState(null);
+    const [isPublic, setIsPublic] = useState(false);
     const fileInputRef = useRef(null);
 
     const handleFileClick = () => {
@@ -45,7 +46,8 @@ const EntryForm = () => {
             impact: impact || 'No impact statement provided.',
             evidenceType: fileName ? (fileName.endsWith('.pdf') ? 'pdf' : 'image') : 'link',
             fileName,
-            fileData
+            fileData,
+            isPublic
         };
 
         addAchievement(newAchievement);
@@ -199,6 +201,31 @@ const EntryForm = () => {
                             </>
                         )}
                     </div>
+                </div>
+
+                {/* Visibility Toggle */}
+                <div className="card flex justify-between items-center" style={{ padding: 'var(--space-4)' }}>
+                    <div className="flex-col gap-1">
+                        <span className="font-medium text-sm">Public Visibility</span>
+                        <span className="text-xs text-muted">Show in your shareable portfolio link</span>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setIsPublic(p => !p)}
+                        style={{
+                            width: '48px', height: '26px', borderRadius: '13px',
+                            backgroundColor: isPublic ? 'var(--color-primary)' : 'var(--color-border)',
+                            position: 'relative', cursor: 'pointer', transition: 'background-color 0.2s', flexShrink: 0
+                        }}
+                    >
+                        <span style={{
+                            position: 'absolute', top: '3px',
+                            left: isPublic ? '25px' : '3px',
+                            width: '20px', height: '20px', borderRadius: '50%',
+                            backgroundColor: 'white', transition: 'left 0.2s',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
+                        }} />
+                    </button>
                 </div>
 
                 <button type="submit" className="btn-primary" style={{ padding: 'var(--space-4)', fontSize: '1.1rem' }}>

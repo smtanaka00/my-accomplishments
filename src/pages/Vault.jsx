@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
-import { Search, Filter, Folder, Image as ImageIcon, FileText, ArrowRight, UploadCloud, ExternalLink } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Search, Filter, Folder, Image as ImageIcon, FileText, ArrowRight, UploadCloud, ExternalLink, X, CheckCircle } from 'lucide-react';
 import { useGlobalState } from '../context/GlobalStateContext';
 import { supabase } from '../supabase';
 
 const Vault = () => {
-    const { files } = useGlobalState();
-    const [activeTab, setActiveTab] = useState('folders'); // 'folders' or 'files'
+    const { files, session, addFile } = useGlobalState();
+    const [activeTab, setActiveTab] = useState('folders');
     const [searchQuery, setSearchQuery] = useState('');
+    const [uploading, setUploading] = useState(false);
+    const [uploadSuccess, setUploadSuccess] = useState(false);
+    const fabInputRef = useRef(null);
 
     const folders = ['2024', '2023', '2022', 'Certifications', 'Performance Reviews'];
 
@@ -15,9 +18,33 @@ const Vault = () => {
     const handleFileClick = async (file) => {
         if (!file.path) return;
         const { data } = supabase.storage.from('evidence_vault').getPublicUrl(file.path);
-        if (data?.publicUrl) {
-            window.open(data.publicUrl, '_blank');
+        if (data?.publicUrl) window.open(data.publicUrl, '_blank');
+    };
+
+    const handleFabUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file || !session?.user) return;
+        setUploading(true);
+        const filePath = `${session.user.id}/${file.name}`;
+        const { error } = await supabase.storage
+            .from('evidence_vault')
+            .upload(filePath, file, { upsert: true });
+        if (!error) {
+            const ext = file.name.split('.').pop();
+            addFile({
+                name: file.name,
+                type: ['pdf'].includes(ext?.toLowerCase()) ? 'pdf' : 'image',
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                size: (file.size / 1024 / 1024).toFixed(2) + ' MB',
+                path: filePath
+            });
+            setUploadSuccess(true);
+            setTimeout(() => setUploadSuccess(false), 2500);
+            setActiveTab('files');
         }
+        setUploading(false);
+        // reset the input so same file can be re-selected
+        fabInputRef.current.value = '';
     };
 
     return (
@@ -117,19 +144,40 @@ const Vault = () => {
             )}
 
             {/* Quick Upload FAB */}
+            <input
+                type="file"
+                ref={fabInputRef}
+                onChange={handleFabUpload}
+                style={{ display: 'none' }}
+                accept=".pdf,image/png,image/jpeg,image/jpg"
+            />
             <button
+                onClick={() => fabInputRef.current?.click()}
+                disabled={uploading}
                 style={{
-                    position: 'fixed', bottom: '80px', right: 'calc(50% - 240px + 20px)', // Adapting to the max-width 480px container constraint
-                    backgroundColor: 'var(--color-primary)', color: 'var(--color-base)',
+                    position: 'fixed', bottom: '80px', right: 'calc(50% - 240px + 20px)',
+                    backgroundColor: uploadSuccess ? '#10b981' : 'var(--color-primary)', color: 'var(--color-base)',
                     width: '56px', height: '56px', borderRadius: '50%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: 'var(--shadow-lg)', zIndex: 100
+                    boxShadow: 'var(--shadow-lg)', zIndex: 100, transition: 'background-color 0.3s',
+                    opacity: uploading ? 0.7 : 1
                 }}
-                // Small hack for accurate right offset in desktop window resizing, max to right 20px if purely mobile
                 className="fab"
+                title="Upload to Vault"
             >
-                <UploadCloud size={24} />
+                {uploadSuccess ? <CheckCircle size={24} /> : <UploadCloud size={24} />}
             </button>
+
+            {uploadSuccess && (
+                <div style={{
+                    position: 'fixed', bottom: '148px', right: 'calc(50% - 240px + 20px)',
+                    backgroundColor: '#10b981', color: 'white', padding: '6px 12px',
+                    borderRadius: 'var(--border-radius-md)', fontSize: '13px', fontWeight: '500',
+                    boxShadow: 'var(--shadow-lg)', zIndex: 100, whiteSpace: 'nowrap'
+                }}>
+                    Uploaded!
+                </div>
+            )}
 
             <style>{`
         @media (max-width: 480px) {
