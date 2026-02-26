@@ -75,6 +75,6 @@ When an implementation phase ends, the local branch should be committed and the 
 - **Status**: Complete
 - **Details**: Added `is_public` boolean column to achievements (`supabase_public_portfolio.sql`). Added a **Public Visibility** toggle switch to `EntryForm`. Built `PublicPortfolio.jsx` — a read-only, no-auth page accessible at `/p/:userId`. Added a **Share My Portfolio** button to the Dashboard that copies the user's public portfolio URL to clipboard. Sign-out button moved from nav bar to the `Header` component.
 
-### Vault Quick Upload (Fix)
-- **Status**: Complete
-- **Details**: Implemented the Vault FAB (floating action button) to trigger a file picker, upload the selected file to Supabase Storage, and show an "Uploaded!" success toast with an animated checkmark icon.
+### Phase 15: Profile Updates & Avatars
+- **Status**: In Progress
+- **Details**: Implementation of a dedicated Profile page where users can update their Full Name, Target Role, and Target Goal. Integrated Supabase Storage for profile picture (avatar) uploads, with the dashboard header updated to display the user's avatar or a colored initial if no picture exists.

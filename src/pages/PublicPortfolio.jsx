@@ -6,13 +6,25 @@ import { useParams } from 'react-router-dom';
 const PublicPortfolio = () => {
     const { userId } = useParams();
     const [achievements, setAchievements] = useState([]);
+    const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
-        const fetchPublicAchievements = async () => {
+        const fetchData = async () => {
             setLoading(true);
+
+            // Fetch profile
+            const { data: profileData } = await supabase
+                .from('profiles')
+                .select('full_name, target_role, avatar_url')
+                .eq('id', userId)
+                .single();
+
+            setProfile(profileData);
+
+            // Fetch achievements
             const { data, error } = await supabase
                 .from('achievements')
                 .select('*')
@@ -29,7 +41,7 @@ const PublicPortfolio = () => {
         };
 
         if (userId) {
-            fetchPublicAchievements();
+            fetchData();
         } else {
             setError('No portfolio ID provided.');
             setLoading(false);
@@ -76,11 +88,22 @@ const PublicPortfolio = () => {
                 <div style={{
                     width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'var(--color-primary)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px',
-                    color: 'white', fontSize: '1.5rem', fontWeight: 'bold'
+                    color: 'white', fontSize: '1.5rem', fontWeight: 'bold', overflow: 'hidden'
                 }}>
-                    ★
+                    {profile?.avatar_url ? (
+                        <img src={profile.avatar_url} alt={profile.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                        profile?.full_name?.charAt(0) || '★'
+                    )}
                 </div>
-                <h1 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '4px' }}>Professional Portfolio</h1>
+                <h1 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '4px' }}>
+                    {profile?.full_name ? `${profile.full_name}'s Portfolio` : 'Professional Portfolio'}
+                </h1>
+                {profile?.target_role && (
+                    <p style={{ color: 'var(--color-primary)', fontSize: '0.9rem', marginBottom: '4px', fontWeight: '500' }}>
+                        {profile.target_role}
+                    </p>
+                )}
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                     <Globe size={14} /> Public achievements
                 </p>

@@ -37,6 +37,7 @@ const Dashboard = () => {
                 title={`${displayTitle}${displayGoal}`}
                 year={selectedYear}
                 onYearChange={setSelectedYear}
+                avatarUrl={profile?.avatar_url}
             />
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>

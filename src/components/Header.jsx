@@ -1,23 +1,28 @@
 import React from 'react';
-import { LogOut } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../supabase';
 
-const Header = ({ name, title, year, onYearChange }) => {
+const Header = ({ name, title, year, onYearChange, avatarUrl }) => {
     return (
         <header className="flex justify-between items-center" style={{ marginBottom: 'var(--space-4)' }}>
-            <div className="flex gap-4 items-center">
+            <Link to="/profile" className="flex gap-4 items-center no-underline" style={{ color: 'inherit' }}>
                 <div style={{
                     width: '50px', height: '50px', borderRadius: '50%', backgroundColor: 'var(--color-primary)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-base)',
-                    fontWeight: 'bold', fontSize: '1.2rem', flexShrink: 0
+                    fontWeight: 'bold', fontSize: '1.2rem', flexShrink: 0, overflow: 'hidden'
                 }}>
-                    {name.charAt(0)}
+                    {avatarUrl ? (
+                        <img src={avatarUrl} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                        name.charAt(0)
+                    )}
                 </div>
                 <div className="flex-col">
                     <h1 className="text-xl" style={{ lineHeight: '1.2' }}>{name}</h1>
                     <p className="text-sm" style={{ color: 'var(--color-primary)', marginTop: '2px' }}>{title}</p>
                 </div>
-            </div>
+            </Link>
             <div className="flex gap-2 items-center">
                 <select
                     value={year}

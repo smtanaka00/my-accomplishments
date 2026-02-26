@@ -9,6 +9,7 @@ import Auth from './pages/Auth';
 import Goals from './pages/Goals';
 import PublicPortfolio from './pages/PublicPortfolio';
 import ProfileSetup from './components/ProfileSetup';
+import Profile from './pages/Profile';
 import { GlobalStateProvider, useGlobalState } from './context/GlobalStateContext';
 import { supabase } from './supabase';
 import './index.css';
@@ -66,6 +67,7 @@ const AppContent = () => {
           <Route path="/log" element={<EntryForm />} />
           <Route path="/vault" element={<Vault />} />
           <Route path="/goals" element={<Goals />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/p/:userId" element={<PublicPortfolio />} />
         </Routes>
       </div>
