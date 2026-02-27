@@ -28,6 +28,7 @@
   --font-size-xl: 1.25rem;
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
 
   /* Spacing */
   --space-1: 0.25rem;
@@ -36,6 +37,10 @@
   --space-4: 1rem;
   --space-6: 1.5rem;
   --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
 
   /* Borders and Shadows */
   --border-radius-sm: 4px;
@@ -50,6 +55,9 @@
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
+
+  /* Sidebar Width */
+  --sidebar-width: 240px;
 }
 
 * {
@@ -65,6 +73,8 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
 }
 
 a {
@@ -84,29 +94,42 @@ ol {
   list-style: none;
 }
 
-/* Base App Container - Mobile First */
+/* Base App Container — responsive, no mobile cap */
 #root {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  max-width: 480px;
-  /* Limits the app to a mobile-like frame on desktop */
-  margin: 0 auto;
   background-color: var(--color-base);
   position: relative;
-  box-shadow: var(--shadow-lg);
-  /* Gives the feel of a phone container on wider screens */
 }
 
+/* Page content wrapper — shifts right on desktop to clear the sidebar */
 .main-content {
   flex: 1;
   padding: var(--space-4);
   padding-bottom: 80px;
-  /* Space for bottom navigation */
+  /* Space for bottom navigation on mobile */
   overflow-y: auto;
 }
 
-/* Typography Utility Classes */
+@media (min-width: 768px) {
+  .main-content {
+    margin-left: var(--sidebar-width);
+    padding-bottom: var(--space-8);
+    padding: var(--space-6) var(--space-8) var(--space-8);
+  }
+}
+
+/* Page container — max-width centering for large screens */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* =============================================
+   Typography Utility Classes
+   ============================================= */
 .text-xs {
   font-size: var(--font-size-xs);
 }
@@ -154,7 +177,9 @@ ol {
   font-weight: 500;
 }
 
-/* Flex & Layout Utilities */
+/* =============================================
+   Flex & Layout Utilities
+   ============================================= */
 .flex {
   display: flex;
 }
@@ -168,12 +193,20 @@ ol {
   align-items: center;
 }
 
+.items-start {
+  align-items: flex-start;
+}
+
 .justify-between {
   justify-content: space-between;
 }
 
 .justify-center {
   justify-content: center;
+}
+
+.gap-1 {
+  gap: var(--space-1);
 }
 
 .gap-2 {
@@ -184,7 +217,34 @@ ol {
   gap: var(--space-4);
 }
 
-/* Component Styles */
+.gap-6 {
+  gap: var(--space-6);
+}
+
+/* =============================================
+   Grid Utilities
+   ============================================= */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-4);
+}
+
+/* =============================================
+   Component Styles
+   ============================================= */
 .card {
   background-color: var(--color-surface);
   border-radius: var(--border-radius-lg);
@@ -195,23 +255,24 @@ ol {
 }
 
 .card:hover {
-  /* Dynamic feel */
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
+/* Buttons — not forced full-width by default on desktop */
 .btn-primary {
   background-color: var(--color-primary);
   color: var(--color-base);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--border-radius-md);
   font-weight: 600;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
   transition: background-color var(--transition-fast);
   width: 100%;
+  /* Full width on mobile */
 }
 
 .btn-primary:hover {
@@ -224,12 +285,13 @@ ol {
   padding: var(--space-3) var(--space-4);
   border-radius: var(--border-radius-md);
   font-weight: 600;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
   transition: background-color var(--transition-fast);
   width: 100%;
+  /* Full width on mobile */
   border: 1px solid var(--color-border);
 }
 
@@ -237,9 +299,27 @@ ol {
   background-color: var(--color-border);
 }
 
-/* Navigation Bar */
+/* On desktop, buttons are auto-width unless .btn-full-width is added */
+@media (min-width: 768px) {
+
+  .btn-primary,
+  .btn-secondary {
+    width: auto;
+    min-width: 160px;
+  }
+
+  /* Explicit full-width override */
+  .btn-primary.btn-full-width,
+  .btn-secondary.btn-full-width {
+    width: 100%;
+  }
+}
+
+/* =============================================
+   Navigation — Mobile Bottom Nav
+   ============================================= */
 .bottom-nav {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
@@ -249,9 +329,15 @@ ol {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  z-index: 10;
+  z-index: 50;
   padding-bottom: env(safe-area-inset-bottom, 0);
-  /* For mobile notched screens */
+}
+
+/* Desktop: hide bottom nav */
+@media (min-width: 768px) {
+  .bottom-nav {
+    display: none;
+  }
 }
 
 .nav-item {
@@ -280,13 +366,101 @@ ol {
   transform: translateY(-2px);
 }
 
-/* Auth Component Styles */
+/* =============================================
+   Navigation — Desktop Sidebar
+   ============================================= */
+.sidebar-nav {
+  display: none;
+  /* Hidden on mobile */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background-color: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  flex-direction: column;
+  z-index: 50;
+  overflow-y: auto;
+}
+
+/* Desktop: show sidebar */
+@media (min-width: 768px) {
+  .sidebar-nav {
+    display: flex;
+  }
+}
+
+.sidebar-logo {
+  padding: var(--space-6) var(--space-4) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sidebar-logo h2 {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.sidebar-logo p {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.sidebar-links {
+  flex: 1;
+  padding: var(--space-4) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--border-radius-md);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.sidebar-item:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.sidebar-item.active {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: var(--color-primary);
+}
+
+.sidebar-item.active svg {
+  color: var(--color-primary);
+}
+
+.sidebar-footer {
+  padding: var(--space-4) var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+/* =============================================
+   Auth Component Styles
+   ============================================= */
 .auth-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 80px);
-  /* minus nav bar */
+  min-height: 100vh;
   padding: var(--space-4);
 }
 
@@ -348,7 +522,6 @@ ol {
   margin-top: var(--space-4);
   padding: var(--space-3);
   background-color: rgba(16, 185, 129, 0.1);
-  /* light primary tint */
   color: var(--color-primary);
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-sm);
@@ -368,4 +541,289 @@ ol {
 
 .full-width {
   width: 100%;
+}
+
+/* =============================================
+   Focus Visible — Keyboard Accessibility
+   ============================================= */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* =============================================
+   Dashboard Layout
+   ============================================= */
+.dashboard-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.avatar-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-base);
+  font-weight: bold;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .avatar-circle {
+    width: 60px;
+    height: 60px;
+    font-size: 1.4rem;
+  }
+}
+
+.header-name {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+@media (min-width: 1024px) {
+  .header-name {
+    font-size: var(--font-size-2xl);
+  }
+}
+
+.header-title {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  margin-top: 2px;
+}
+
+@media (min-width: 1024px) {
+  .header-title {
+    font-size: var(--font-size-base);
+  }
+}
+
+.year-select {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--border-radius-md);
+  outline: none;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* =============================================
+   Timeline Filter Layout
+   ============================================= */
+.timeline-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .timeline-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    align-items: start;
+    gap: var(--space-8);
+  }
+}
+
+.timeline-filters-desktop {
+  display: none;
+}
+
+.timeline-filters-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 1024px) {
+  .timeline-filters-desktop {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    position: sticky;
+    top: var(--space-6);
+  }
+
+  .timeline-filters-mobile {
+    display: none;
+  }
+}
+
+.category-chips-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* =============================================
+   Page Section Headers
+   ============================================= */
+.page-header {
+  margin-bottom: var(--space-6);
+}
+
+.page-header h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+}
+
+.page-header p {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin-top: var(--space-1);
+}
+
+/* =============================================
+   Two-column Form Layout (Desktop)
+   ============================================= */
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: var(--space-6);
+  }
+}
+
+/* =============================================
+   Vault Folder Grid (Desktop)
+   ============================================= */
+.folder-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 768px) {
+  .folder-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-4);
+  }
+}
+
+/* =============================================
+   Auth Page — Desktop Split
+   ============================================= */
+.auth-page {
+  display: flex;
+  min-height: 100vh;
+}
+
+.auth-brand-panel {
+  display: none;
+}
+
+.auth-form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .auth-brand-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: var(--space-12) var(--space-10);
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    border-right: 1px solid var(--color-border);
+    flex: 1;
+    max-width: 520px;
+  }
+
+  .auth-form-panel {
+    flex: 1;
+  }
+}
+
+.auth-brand-logo {
+  font-size: var(--font-size-4xl);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--color-primary), #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--space-4);
+  line-height: 1.1;
+}
+
+.auth-brand-tagline {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-8);
+  line-height: 1.6;
+}
+
+.auth-feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.auth-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.auth-feature-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius-md);
+  background-color: rgba(16, 185, 129, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.auth-feature-text h3 {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.auth-feature-text p {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }

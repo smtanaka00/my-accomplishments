@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import {
-    Search, Filter, Folder, Image as ImageIcon, FileText, ArrowRight,
+    Search, Folder, Image as ImageIcon, FileText, ArrowRight,
     UploadCloud, ExternalLink, CheckCircle, Trash2, ChevronRight, X
 } from 'lucide-react';
 import { useGlobalState } from '../context/GlobalStateContext';
@@ -17,26 +17,17 @@ const Vault = () => {
     const [uploadSuccess, setUploadSuccess] = useState(false);
     const fabInputRef = useRef(null);
 
-    // Dynamic folder list — current year + 5 previous years + named folders
     const currentYear = new Date().getFullYear();
     const yearFolders = Array.from({ length: 6 }, (_, i) => String(currentYear - i));
     const folders = [...yearFolders, ...NAMED_FOLDERS];
 
-    // Filter files by search query and active folder
     const filteredFiles = files.filter(file => {
         const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
         if (!activeFolder) return matchesSearch;
-
-        // Match if the file's folder property matches the active folder
         if (file.folder === activeFolder) return matchesSearch;
-
-        // Fallback: match if the file path segments include the folder name
         if (file.path && file.path.split('/').includes(activeFolder)) return matchesSearch;
-
-        // Legacy/Safety for year folders by date string
         const isYearFolder = /^\d{4}$/.test(activeFolder);
         if (isYearFolder) return matchesSearch && file.date.includes(activeFolder);
-
         return false;
     });
 
@@ -58,10 +49,8 @@ const Vault = () => {
     };
 
     const handleDeleteFile = async (e, file) => {
-        e.stopPropagation(); // don't open file on delete click
-        const confirmed = window.confirm(
-            `Delete "${file.name}"?\n\nThis action cannot be undone.`
-        );
+        e.stopPropagation();
+        const confirmed = window.confirm(`Delete "${file.name}"?\n\nThis action cannot be undone.`);
         if (!confirmed) return;
         await deleteFile(file);
     };
@@ -71,7 +60,6 @@ const Vault = () => {
         if (!file || !session?.user) return;
         setUploading(true);
 
-        // Prefix the path with the active folder name if one is selected
         const folderPrefix = activeFolder ? `${activeFolder}/` : '';
         const filePath = `${session.user.id}/${folderPrefix}${file.name}`;
 
@@ -98,14 +86,14 @@ const Vault = () => {
     };
 
     return (
-        <div className="flex-col gap-6" style={{ paddingBottom: 'var(--space-8)' }}>
-            <header className="flex-col gap-1 text-center" style={{ marginTop: 'var(--space-2)' }}>
-                <h1 className="text-2xl">Evidence Vault</h1>
-                <p className="text-muted text-sm">Your secure document library. Files are kept forever.</p>
-            </header>
+        <div className="page-container">
+            <div className="page-header">
+                <h1>Evidence Vault</h1>
+                <p>Your secure document library. Files are kept forever.</p>
+            </div>
 
             {/* Search Bar */}
-            <div style={{ position: 'relative' }}>
+            <div style={{ position: 'relative', marginBottom: 'var(--space-4)' }}>
                 <Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
                 <input
                     type="text"
@@ -118,7 +106,7 @@ const Vault = () => {
                     style={{
                         width: '100%', padding: '12px 12px 12px 40px', backgroundColor: 'var(--color-surface)',
                         border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-full)',
-                        color: 'var(--color-text)', outline: 'none'
+                        color: 'var(--color-text)', outline: 'none', fontFamily: 'inherit',
                     }}
                 />
                 {searchQuery && (
@@ -133,7 +121,7 @@ const Vault = () => {
 
             {/* Breadcrumb when folder is active */}
             {activeFolder && (
-                <div className="flex items-center gap-2" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+                <div className="flex items-center gap-2" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)', marginBottom: 'var(--space-4)' }}>
                     <button onClick={clearFolderFilter} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-primary)', fontWeight: '500', padding: 0 }}>
                         Vault
                     </button>
@@ -146,7 +134,7 @@ const Vault = () => {
             )}
 
             {/* Tabs */}
-            <div className="flex" style={{ borderBottom: '1px solid var(--color-border)' }}>
+            <div className="flex" style={{ borderBottom: '1px solid var(--color-border)', marginBottom: 'var(--space-4)' }}>
                 <button
                     onClick={() => { setActiveTab('folders'); setActiveFolder(null); }}
                     style={{
@@ -171,9 +159,8 @@ const Vault = () => {
 
             {/* Content Area */}
             {activeTab === 'folders' ? (
-                <div className="flex-col gap-3">
+                <div className="folder-grid">
                     {folders.map(folder => {
-                        // Count files in this folder
                         const isYearFolder = /^\d{4}$/.test(folder);
                         const count = files.filter(f =>
                             isYearFolder
@@ -190,7 +177,7 @@ const Vault = () => {
                             >
                                 <div className="flex gap-3 items-center">
                                     <Folder size={24} color="#3b82f6" />
-                                    <div className="flex-col gap-0">
+                                    <div className="flex-col">
                                         <span className="font-medium text-base">{folder}</span>
                                         <span className="text-xs text-muted">{count} {count === 1 ? 'file' : 'files'}</span>
                                     </div>
@@ -208,7 +195,7 @@ const Vault = () => {
                                 ? `No files in "${activeFolder}" yet. Upload one!`
                                 : searchQuery
                                     ? 'No documents matched your search.'
-                                    : 'No files uploaded yet. Tap the button below to upload.'}
+                                    : 'No files uploaded yet. Click the button below to upload.'}
                         </div>
                     ) : (
                         filteredFiles.map(file => (
@@ -224,8 +211,8 @@ const Vault = () => {
                                             ? <FileText size={20} color="var(--color-text-muted)" />
                                             : <ImageIcon size={20} color="var(--color-text-muted)" />}
                                     </div>
-                                    <div className="flex-col gap-1" style={{ minWidth: 0 }}>
-                                        <span className="font-medium text-sm" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px', display: 'block' }}>
+                                    <div className="flex-col gap-1" style={{ minWidth: 0, flex: 1 }}>
+                                        <span className="font-medium text-sm" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block' }}>
                                             {file.name}
                                         </span>
                                         <div className="flex gap-2">
@@ -257,7 +244,7 @@ const Vault = () => {
                 </div>
             )}
 
-            {/* Quick Upload FAB */}
+            {/* Upload FAB */}
             <input
                 type="file"
                 ref={fabInputRef}
@@ -269,14 +256,13 @@ const Vault = () => {
                 onClick={() => fabInputRef.current?.click()}
                 disabled={uploading}
                 style={{
-                    position: 'fixed', bottom: '80px', right: 'calc(50% - 240px + 20px)',
+                    position: 'fixed', bottom: 'calc(64px + var(--space-4))', right: 'var(--space-6)',
                     backgroundColor: uploadSuccess ? '#10b981' : 'var(--color-primary)', color: 'var(--color-base)',
                     width: '56px', height: '56px', borderRadius: '50%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     boxShadow: 'var(--shadow-lg)', zIndex: 100, transition: 'background-color 0.3s',
                     opacity: uploading ? 0.7 : 1
                 }}
-                className="fab"
                 title={activeFolder ? `Upload to ${activeFolder}` : 'Upload to Vault'}
             >
                 {uploadSuccess ? <CheckCircle size={24} /> : <UploadCloud size={24} />}
@@ -284,7 +270,7 @@ const Vault = () => {
 
             {uploadSuccess && (
                 <div style={{
-                    position: 'fixed', bottom: '148px', right: 'calc(50% - 240px + 20px)',
+                    position: 'fixed', bottom: 'calc(64px + 76px)', right: 'var(--space-6)',
                     backgroundColor: '#10b981', color: 'white', padding: '6px 12px',
                     borderRadius: 'var(--border-radius-md)', fontSize: '13px', fontWeight: '500',
                     boxShadow: 'var(--shadow-lg)', zIndex: 100, whiteSpace: 'nowrap'
@@ -292,12 +278,6 @@ const Vault = () => {
                     Uploaded!
                 </div>
             )}
-
-            <style>{`
-        @media (max-width: 480px) {
-          .fab { right: 20px !important; }
-        }
-      `}</style>
         </div>
     );
 };

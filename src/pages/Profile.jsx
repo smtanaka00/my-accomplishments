@@ -54,7 +54,6 @@ const Profile = () => {
 
             setAvatarUrl(publicUrl);
 
-            // Also update the profile immediately for better UX
             const { error: updateError } = await supabase
                 .from('profiles')
                 .update({ avatar_url: publicUrl })
@@ -97,21 +96,29 @@ const Profile = () => {
         }
     };
 
+    const inputStyle = {
+        width: '100%', padding: 'var(--space-3)', borderRadius: 'var(--border-radius-md)',
+        border: '1px solid var(--color-border)', backgroundColor: 'var(--color-base)',
+        color: 'var(--color-text)', outline: 'none', fontFamily: 'inherit', fontSize: 'inherit',
+    };
+
     return (
-        <div className="container" style={{ paddingBottom: 'var(--space-20)' }}>
+        <div className="page-container">
             <div className="flex items-center gap-4" style={{ marginBottom: 'var(--space-6)' }}>
-                <button onClick={() => navigate(-1)} className="p-2" style={{ color: 'var(--color-text-muted)' }}>
+                <button onClick={() => navigate(-1)} style={{ padding: '6px', color: 'var(--color-text-muted)' }}>
                     <ArrowLeft size={24} />
                 </button>
-                <h2 className="text-2xl font-bold">Edit Profile</h2>
+                <h1 className="text-2xl font-bold">Edit Profile</h1>
             </div>
 
-            <div className="card flex-col gap-6">
-                <div className="flex-col items-center gap-4">
+            {/* On desktop: side-by-side; on mobile: stacked */}
+            <div className="form-grid">
+                {/* Left: Avatar */}
+                <div className="card flex-col items-center gap-4" style={{ padding: 'var(--space-8)' }}>
                     <div
                         onClick={handleAvatarClick}
                         style={{
-                            width: '100px', height: '100px', borderRadius: '50%',
+                            width: '120px', height: '120px', borderRadius: '50%',
                             backgroundColor: 'var(--color-surface-hover)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             cursor: 'pointer', position: 'relative', overflow: 'hidden',
@@ -121,7 +128,7 @@ const Profile = () => {
                         {avatarUrl ? (
                             <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
-                            <span style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--color-primary)' }}>
+                            <span style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--color-primary)' }}>
                                 {fullName.charAt(0) || '?'}
                             </span>
                         )}
@@ -150,71 +157,72 @@ const Profile = () => {
                         accept="image/*"
                     />
                     <p className="text-xs text-muted">Click to change profile picture</p>
-                </div>
 
-                <form onSubmit={handleSubmit} className="flex-col gap-4">
-                    <div className="flex-col gap-2">
-                        <label className="text-sm font-semibold text-muted">Full Name</label>
-                        <input
-                            type="text"
-                            required
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            style={{
-                                padding: 'var(--space-3)', borderRadius: 'var(--border-radius-md)',
-                                border: '1px solid var(--color-border)', backgroundColor: 'var(--color-base)',
-                                color: 'var(--color-text)'
-                            }}
-                        />
-                    </div>
-
-                    <div className="flex-col gap-2">
-                        <label className="text-sm font-semibold text-muted">Current / Target Role</label>
-                        <input
-                            type="text"
-                            required
-                            value={targetRole}
-                            onChange={(e) => setTargetRole(e.target.value)}
-                            style={{
-                                padding: 'var(--space-3)', borderRadius: 'var(--border-radius-md)',
-                                border: '1px solid var(--color-border)', backgroundColor: 'var(--color-base)',
-                                color: 'var(--color-text)'
-                            }}
-                        />
-                    </div>
-
-                    <div className="flex-col gap-2">
-                        <label className="text-sm font-semibold text-muted">Target Goal</label>
-                        <select
-                            required
-                            value={targetGoal}
-                            onChange={(e) => setTargetGoal(e.target.value)}
-                            style={{
-                                padding: 'var(--space-3)', borderRadius: 'var(--border-radius-md)',
-                                border: '1px solid var(--color-border)', backgroundColor: 'var(--color-base)',
-                                color: 'var(--color-text)'
-                            }}
-                        >
-                            <option value="">Select a goal...</option>
-                            <option value="EB2 NIW">EB-2 NIW Visa</option>
-                            <option value="O1 Visa">O-1 Visa</option>
-                            <option value="H1B Visa">H-1B Visa</option>
-                            <option value="Promotion">Promotion</option>
-                            <option value="Grad School">Graduate School Application</option>
-                        </select>
-                    </div>
-
-                    {message.text && (
-                        <div className="text-sm" style={{ color: message.type === 'error' ? '#ef4444' : '#22c55e' }}>
-                            {message.text}
+                    {/* Show name below avatar */}
+                    {fullName && (
+                        <div style={{ textAlign: 'center' }}>
+                            <p className="font-semibold">{fullName}</p>
+                            {targetRole && <p className="text-sm text-muted">{targetRole}</p>}
                         </div>
                     )}
+                </div>
 
-                    <button type="submit" className="btn-primary flex items-center justify-center gap-2" disabled={loading || uploading}>
-                        {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-                        Save Changes
-                    </button>
-                </form>
+                {/* Right: Form */}
+                <div className="card">
+                    <form onSubmit={handleSubmit} className="flex-col gap-4">
+                        <h2 className="font-semibold text-lg" style={{ marginBottom: 'var(--space-2)' }}>Account Details</h2>
+
+                        <div className="flex-col gap-2">
+                            <label className="text-sm font-semibold text-muted">Full Name</label>
+                            <input
+                                type="text"
+                                required
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
+                                style={inputStyle}
+                            />
+                        </div>
+
+                        <div className="flex-col gap-2">
+                            <label className="text-sm font-semibold text-muted">Current / Target Role</label>
+                            <input
+                                type="text"
+                                required
+                                value={targetRole}
+                                onChange={(e) => setTargetRole(e.target.value)}
+                                style={inputStyle}
+                            />
+                        </div>
+
+                        <div className="flex-col gap-2">
+                            <label className="text-sm font-semibold text-muted">Target Goal</label>
+                            <select
+                                required
+                                value={targetGoal}
+                                onChange={(e) => setTargetGoal(e.target.value)}
+                                style={inputStyle}
+                            >
+                                <option value="">Select a goal...</option>
+                                <option value="EB2 NIW">EB-2 NIW Visa</option>
+                                <option value="O1 Visa">O-1 Visa</option>
+                                <option value="H1B Visa">H-1B Visa</option>
+                                <option value="Promotion">Promotion</option>
+                                <option value="Grad School">Graduate School Application</option>
+                            </select>
+                        </div>
+
+                        {message.text && (
+                            <div className="text-sm" style={{ color: message.type === 'error' ? '#ef4444' : '#22c55e' }}>
+                                {message.text}
+                            </div>
+                        )}
+
+                        <button type="submit" className="btn-primary btn-full-width flex items-center justify-center gap-2" disabled={loading || uploading}>
+                            {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+                            Save Changes
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     );

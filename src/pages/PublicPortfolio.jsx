@@ -82,13 +82,14 @@ const PublicPortfolio = () => {
     }
 
     return (
-        <div style={{ maxWidth: '480px', margin: '0 auto', padding: '24px 16px 48px', fontFamily: 'inherit' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px 24px 64px', fontFamily: 'inherit' }}>
             {/* Header */}
             <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                 <div style={{
-                    width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'var(--color-primary)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px',
-                    color: 'white', fontSize: '1.5rem', fontWeight: 'bold', overflow: 'hidden'
+                    width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'var(--color-primary)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',
+                    color: 'white', fontSize: '2rem', fontWeight: 'bold', overflow: 'hidden',
+                    border: '3px solid var(--color-border)'
                 }}>
                     {profile?.avatar_url ? (
                         <img src={profile.avatar_url} alt={profile.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -122,18 +123,18 @@ const PublicPortfolio = () => {
             </div>
 
             {/* Summary Stats */}
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '32px' }}>
-                <div style={{ flex: 1, textAlign: 'center', padding: '16px', backgroundColor: 'var(--color-surface)', borderRadius: 'var(--border-radius-md)' }}>
+            <div className="grid-3" style={{ marginBottom: '32px' }}>
+                <div style={{ textAlign: 'center', padding: '16px', backgroundColor: 'var(--color-surface)', borderRadius: 'var(--border-radius-md)' }}>
                     <div style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-primary)' }}>{achievements.length}</div>
                     <div style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Achievements</div>
                 </div>
-                <div style={{ flex: 1, textAlign: 'center', padding: '16px', backgroundColor: 'var(--color-surface)', borderRadius: 'var(--border-radius-md)' }}>
+                <div style={{ textAlign: 'center', padding: '16px', backgroundColor: 'var(--color-surface)', borderRadius: 'var(--border-radius-md)' }}>
                     <div style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-accent)' }}>
                         {achievements.filter(a => a.category === 'Award').length}
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Awards</div>
                 </div>
-                <div style={{ flex: 1, textAlign: 'center', padding: '16px', backgroundColor: 'var(--color-surface)', borderRadius: 'var(--border-radius-md)' }}>
+                <div style={{ textAlign: 'center', padding: '16px', backgroundColor: 'var(--color-surface)', borderRadius: 'var(--border-radius-md)' }}>
                     <div style={{ fontSize: '1.75rem', fontWeight: '700', color: '#3b82f6' }}>
                         {[...new Set(achievements.map(a => new Date(a.date).getFullYear()))].length}
                     </div>
